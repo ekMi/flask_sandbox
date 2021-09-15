@@ -31,13 +31,13 @@ def upload_file():
     if request.method == 'POST':
         # check if the post method has file part
         if 'file' not in request.files:
-            # flash 'No file part, Danger'
+            flash('No file part, Danger')
             return redirect(request.base_url)
         file = request.files['file']
         # if user does not select file, browser also
         # submit an empty part without filename
         if file.filename == '':
-            # flash 'No selected file, Danger'
+            flash('No selected file, Danger')
             return redirect(request.base_url)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
@@ -51,3 +51,7 @@ def upload_file():
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
     # return "file uploaded"
+
+@app.route('/jinja2learn')
+def jinja2learn():
+    return render_template('jinja2learn.html', name = "Michaël")

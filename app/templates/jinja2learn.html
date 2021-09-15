@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Jinja2 template engine</title>
+</head>
+<body>
+    {% import 'macro.html' as macros %}
+    {% import 'forms.html' as forms %}
+
+    <!--
+    {% raw %}
+    {% extends "base.html" %}
+    {% block content %}
+        <h1>Index</h1>
+        {{ super() }}
+        <p class="important">Welcome to my homepage</p>
+    {% endblock %}
+    {% endraw %}
+    //-->
+
+
+    {% set username = "Pumpkin" %}
+    {% set names = ["Paul", "John", "Ralph"] %}
+    {% set navigation = [('index.html'), ('Index'), ('about.html'), ('About')] %}
+    {% set seq = [0, 1, 2, 3] %}
+
+    <p>This is a testbed  to learn Jinja 2</p>
+    <p>Hello {{ name }}</p>
+
+    <p>Hello {{ username }}</p>
+    <p>Hello {{ names[2] }}</p>
+
+    {% if names[0] =="John" %}
+        <p>Hello my friend {{ names[0] }}</p>
+    {% elif names[0] == "Paul" %}
+        <p>Bye Bye my friend {{ names[0] }}</p>
+    {% else %}
+        <p>Who the hell are you?</p>
+    {% endif %}
+
+    <ul>
+        {% for n in names %}
+            <li>{{ n }}</li>
+        {% endfor %}
+    </ul>
+
+    <ul>
+        {% for id in seq %}
+            <li>{{ navigation[id] }}</li>
+        {% endfor %}
+    </ul>
+
+    {% for name in names %}
+        {{ macros.gen_list_items(name) }}
+    {% endfor %}
+
+    <dl>
+        <dt>Username</dt>
+        <dd>{{ forms.input('username') }}</dd>
+        <dt>Password</dt>
+        <dd>{{ forms.input('password', type='password') }}</dd>
+    </dl>
+    <p>{{ forms.textarea('comment') }}</p>
+
+    <!-- Message Flashing -->
+    <p>
+        {% with messages = get_flashed_messages(with_categories=true, category_filter=['danger']) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for c, m in messages %}
+                        <li> {{ c }} : {{ m }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </p>
+</body>
+</html>
