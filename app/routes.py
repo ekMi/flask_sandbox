@@ -3,11 +3,67 @@ import os
 from flask import flash, render_template, redirect, url_for, request, send_from_directory
 from app.upload_file import allowed_file
 from werkzeug.utils import secure_filename
+from app.forms import My_login_form
+from app.models import User
+from flask_login import login_required, login_user, logout_user, current_user
+# create some dummy users with ids 1 to 5
+users = [User(id) for id in range(1,5)]
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
 
 
 @app.route("/")
-def hello():
-    return "Hello World!"
+@login_required
+def main():
+    return render_template('index.html')
+
+
+@app.route("/page_a")
+@login_required
+def page_a():
+    return render_template('page_a.html')
+
+
+@app.route("/page_b")
+@login_required
+def page_b():
+    return render_template('page_b.html')
+
+
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('main'))
+    form = My_login_form()
+    if form.validate_on_submit():
+        user_found = False
+        for n in range(0, len(users)):
+            if users[n].get_name() == form.username.data:
+                user_found = True
+                break
+        if user_found:
+            if form.password.data == form.username.data + "_secret":
+                id = form.username.data.split('user')[1]
+                user = User(id)
+                login_user(user)
+                return redirect(url_for('main'))
+            else:
+                flash('Wrong password', 'danger')
+                return redirect(url_for('login'))
+        else:
+            flash('User not found', 'danger')
+            return redirect(url_for('login'))
+    else:
+        return render_template('my_login_form.html', form=form)
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('main'))
 
 
 @app.route('/process_request', methods=['GET', 'POST'])
@@ -31,13 +87,13 @@ def upload_file():
     if request.method == 'POST':
         # check if the post method has file part
         if 'file' not in request.files:
-            flash('No file part, Danger')
+            flash('No file part', 'danger')
             return redirect(request.base_url)
         file = request.files['file']
         # if user does not select file, browser also
         # submit an empty part without filename
         if file.filename == '':
-            flash('No selected file, Danger')
+            flash('No selected file', 'danger')
             return redirect(request.base_url)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)

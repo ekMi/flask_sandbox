@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login form with WTF</title>
+</head>
+<body>
+    <h1>This is the login page</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true, category_filter=['danger']) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for c, m in messages %}
+                    <li> {{ c }} : {{ m }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    {% if form.error %}
+        {% for message in form.username.errors %}
+            <div class="field_error">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST" action="/login" nonvalidate>
+        {{ form.csrf_token }}
+        {{ form.username.label }} {{ form.username(size=20)}} <br>
+        {{ form.password.label }} {{ form.password(size=16)}} <br>
+        {{ form.submit }}
+    </form>
+
+    <div>
+        Test WTForm and Flask-login <br>
+        <a href="{{ url_for('main') }}">Home</a>
+        <a href="{{ url_for('login') }}">Login</a>
+    </div>
+
+</body>
+</html>
